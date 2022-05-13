@@ -37,27 +37,38 @@ public class MongoDHCP {
     public static void mostrarInformacionDispositivos(MongoCollection<Document> collection) {
 
         Bson filtro = Filters.gte("hdgb", 1024);
-        Bson proyeccion = Document.parse("{_id:0, codigo:1, marca:1, sisope: 1, ramgb: 1, hdgb: 1, extras: 1}");
+        Bson proyeccion = Document.parse("{_id:0, codigo:1, marca:1, sisope:1, ramgb:1, hdgb:1, extras:1}");
+        
         Bson orden = Sorts.ascending("sisope");
         for (Document cursor : collection.find(filtro).projection(proyeccion).sort(orden)) {
-            System.out.println("===============================================");
-            System.out.printf("Código...........:",
-                    cursor.get("codigo"));
-            System.out.printf("\nMarca............:",
-                    cursor.get("marca"));
-            System.out.printf("\nSistema Operativo:",
-                    cursor.get("sisope"));
-            System.out.println("\n+----+-------+----+----+--------------------+");
-            System.out.printf("| %-4s | %-7s | %-4s | %-4s | %-20s | \n", "RAM", "HD", "DVD", "TAR", "VIDEO");
-            System.out.println("+----+-------+----+----+--------------------+");
+            
+            
+            // En la mayoría de los casos has hecho solo cursor.get() o extras.get() pero hay que 
+            // especificar el tipo por ejemplo ramgb es cursor.getInteger("ramgb")
+            
+            // Aquí te ha faltado poner los %s y te recomiendo que pongas los \n al final.
+            System.out.println("=======================================");
+            System.out.printf("Código...........: %s\n", cursor.getString("codigo"));
+            System.out.printf("Marca............: %s\n", cursor.getString("marca"));
+            System.out.printf("Sistema Operativo: %s\n", cursor.getString("sisope"));
+            
+            // Los tamaños de columna, no eran los del enunciado.
+            System.out.printf("+-----+------+-----+-----+-------------+\n");
+            System.out.printf("| %-3s | %-4s | %-3s | %-3s | %-11s |\n", "RAM", "HD", "DVD", "TAR", "VIDEO");
+            System.out.printf("+-----+------+-----+-----+-------------+\n");
             Document extras = (Document) cursor.get("extras");
-            System.out.printf("\n| %-4s | %-7s | %-4s | %-4s | %-20s | \n",
-                    cursor.get("ramgb"),
-                    cursor.get("hdgb"),
-                    extras.get("dvd"),
-                    extras.get("lector_tarjetas"),
-                    extras.get("video"));
-            System.out.println("+----+-------+----+----+--------------------+");
+            
+            // ramgb y hdgb son %d y no %s 
+            System.out.printf("| %-3d | %-4d | %-3s | %-3s | %-11s |\n",
+                    cursor.getInteger("ramgb"),
+                    cursor.getInteger("hdgb"),
+                    
+                    // Aquí te he añadido una ternaria para que en lugar de true o false
+                    // muestre SI o NO como se indica en las especificaciones.
+                    extras.getBoolean("dvd")?"SI":"NO",
+                    extras.getBoolean("lector_tarjetas")?"SI":"NO",
+                    extras.getString("video"));
+            System.out.printf("+-----+------+-----+-----+-------------+\n");
         }
     }
     
